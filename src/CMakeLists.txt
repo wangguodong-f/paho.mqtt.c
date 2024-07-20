@@ -230,20 +230,15 @@ install(
 
 if(PAHO_WITH_SSL OR PAHO_WITH_LIBRESSL)
   if(PAHO_WITH_LIBRESSL)
-    set(LIBRESSL_ROOT_DIR "" CACHE PATH "Directory containing LibreSSL libraries and includes")
     find_package(LibreSSL REQUIRED)
-    set(SSL_INCLUDE_DIR ${LIBRESSL_INCLUDE_DIR} CACHE PATH "Directory containing SSL includes")
-    set(SSL_LIBRARY_NAME LibreSSL CACHE STRING "Name of the used SSL library")
-    set(SSL_ROOT_DIR ${LIBRESSL_ROOT_DIR} CACHE PATH "Directory containing SSL libraries and includes")
+    set(SSL_LIBRARY_NAME LibreSSL)
+    message(STATUS "Using LibreSSL with headers at ${LIBRESSL_INCLUDE_DIR}, lib ${LIBRESSL_SSL_LIBRARY}")
   else()
-    set(OPENSSL_ROOT_DIR "" CACHE PATH "Directory containing OpenSSL libraries and includes")
     find_package(OpenSSL REQUIRED)
-    set(SSL_INCLUDE_DIR ${OPENSSL_INCLUDE_DIR} CACHE PATH "Directory containing SSL includes")
-    set(SSL_LIBRARY_NAME OpenSSL CACHE STRING "Name of the used SSL library")
-    set(SSL_ROOT_DIR ${OPENSSL_ROOT_DIR} CACHE PATH "Directory containing SSL libraries and includes")
+    set(SSL_LIBRARY_NAME OpenSSL)
+    message(STATUS "Using OpenSSL with headers at ${OPENSSL_INCLUDE_DIR}, lib ${OPENSSL_SSL_LIBRARY}")
   endif()
-  message("Use ${SSL_LIBRARY_NAME} at ${SSL_ROOT_DIR}")
-  message("SSL_INCLUDE_DIR: ${SSL_INCLUDE_DIR} ${LIBRESSL_SSL_LIBRARY} ${LIBRESSL_CRYPTO_LIBRARY}")
+
 
   if(PAHO_BUILD_SHARED)
     ## common compilation for libpaho-mqtt3cs and libpaho-mqtt3as
