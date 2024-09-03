@@ -1667,6 +1667,7 @@ int MQTTAsync_setUpdateConnectOptions(MQTTAsync handle, void* context, MQTTAsync
 }
 
 
+#if !defined(NO_PERSISTENCE)
 int MQTTAsync_setBeforePersistenceWrite(MQTTAsync handle, void* context, MQTTPersistence_beforeWrite* co)
 {
 	int rc = MQTTASYNC_SUCCESS;
@@ -1709,6 +1710,7 @@ int MQTTAsync_setAfterPersistenceRead(MQTTAsync handle, void* context, MQTTPersi
 	FUNC_EXIT_RC(rc);
 	return rc;
 }
+#endif
 
 
 void MQTTAsync_setTraceLevel(enum MQTTASYNC_TRACE_LEVELS level)
