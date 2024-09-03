@@ -980,6 +980,13 @@ exit:
 }
 
 
+int MQTTAsync_inCallback()
+{
+	thread_id_type thread_id = Paho_thread_getid();
+	return thread_id == sendThread_id || thread_id == receiveThread_id;
+}
+
+
 int MQTTAsync_subscribeMany(MQTTAsync handle, int count, char* const* topic, const int* qos, MQTTAsync_responseOptions* response)
 {
 	MQTTAsyncs* m = handle;
@@ -989,6 +996,8 @@ int MQTTAsync_subscribeMany(MQTTAsync handle, int count, char* const* topic, con
 	int msgid = 0;
 
 	FUNC_ENTRY;
+	if (!MQTTAsync_inCallback())
+		MQTTAsync_lock_mutex(mqttasync_mutex);
 	if (m == NULL || m->c == NULL)
 		rc = MQTTASYNC_FAILURE;
 	else if (m->c->connected == 0)
@@ -1092,6 +1101,8 @@ int MQTTAsync_subscribeMany(MQTTAsync handle, int count, char* const* topic, con
 		rc = PAHO_MEMORY_ERROR;
 
 exit:
+	if (!MQTTAsync_inCallback())
+		MQTTAsync_unlock_mutex(mqttasync_mutex);
 	FUNC_EXIT_RC(rc);
 	return rc;
 }
@@ -1116,6 +1127,8 @@ int MQTTAsync_unsubscribeMany(MQTTAsync handle, int count, char* const* topic, M
 	int msgid = 0;
 
 	FUNC_ENTRY;
+	if (!MQTTAsync_inCallback())
+		MQTTAsync_lock_mutex(mqttasync_mutex);
 	if (m == NULL || m->c == NULL)
 		rc = MQTTASYNC_FAILURE;
 	else if (m->c->connected == 0)
@@ -1180,6 +1193,8 @@ int MQTTAsync_unsubscribeMany(MQTTAsync handle, int count, char* const* topic, M
 	rc = MQTTAsync_addCommand(unsub, sizeof(unsub));
 
 exit:
+	if (!MQTTAsync_inCallback())
+		MQTTAsync_unlock_mutex(mqttasync_mutex);
 	FUNC_EXIT_RC(rc);
 	return rc;
 }
@@ -1204,6 +1219,8 @@ int MQTTAsync_send(MQTTAsync handle, const char* destinationName, int payloadlen
 	int msgid = 0;
 
 	FUNC_ENTRY;
+	if (!MQTTAsync_inCallback())
+		MQTTAsync_lock_mutex(mqttasync_mutex);
 	if (m == NULL || m->c == NULL)
 		rc = MQTTASYNC_FAILURE;
 	else if (m->c->connected == 0)
@@ -1287,6 +1304,8 @@ int MQTTAsync_send(MQTTAsync handle, const char* destinationName, int payloadlen
 	rc = MQTTAsync_addCommand(pub, sizeof(pub));
 
 exit:
+	if (!MQTTAsync_inCallback())
+		MQTTAsync_unlock_mutex(mqttasync_mutex);
 	FUNC_EXIT_RC(rc);
 	return rc;
 }
@@ -1324,10 +1343,19 @@ exit:
 
 int MQTTAsync_disconnect(MQTTAsync handle, const MQTTAsync_disconnectOptions* options)
 {
+	int rc = 0;
+
+	FUNC_ENTRY;
+	if (!MQTTAsync_inCallback())
+		MQTTAsync_lock_mutex(mqttasync_mutex);
 	if (options != NULL && (strncmp(options->struct_id, "MQTD", 4) != 0 || options->struct_version < 0 || options->struct_version > 1))
-		return MQTTASYNC_BAD_STRUCTURE;
+		rc = MQTTASYNC_BAD_STRUCTURE;
 	else
-		return MQTTAsync_disconnect1(handle, options, 0);
+		rc = MQTTAsync_disconnect1(handle, options, 0);
+	if (!MQTTAsync_inCallback())
+		MQTTAsync_unlock_mutex(mqttasync_mutex);
+	FUNC_EXIT_RC(rc);
+	return rc;
 }
 
 

@@ -2754,19 +2754,9 @@ int MQTTAsync_assignMsgId(MQTTAsyncs* m)
 {
 	int start_msgid;
 	int msgid;
-	thread_id_type thread_id = 0;
-	int locked = 0;
 
 	/* need to check: commands list and response list for a client */
 	FUNC_ENTRY;
-	/* We might be called in a callback. In which case, this mutex will be already locked. */
-	thread_id = Paho_thread_getid();
-	if (thread_id != sendThread_id && thread_id != receiveThread_id)
-	{
-		MQTTAsync_lock_mutex(mqttasync_mutex);
-		locked = 1;
-	}
-
 	/* Fetch last message ID in locked state */
 	start_msgid = m->c->msgID;
 	msgid = start_msgid;
@@ -2787,8 +2777,6 @@ int MQTTAsync_assignMsgId(MQTTAsyncs* m)
 	MQTTAsync_unlock_mutex(mqttcommand_mutex);
 	if (msgid != 0)
 		m->c->msgID = msgid;
-	if (locked)
-		MQTTAsync_unlock_mutex(mqttasync_mutex);
 	FUNC_EXIT_RC(msgid);
 	return msgid;
 }
