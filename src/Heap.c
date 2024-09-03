@@ -180,7 +180,7 @@ void* mymalloc(char* file, int line, size_t size)
 		free(s);
 		goto exit;
 	}
-	memset(s->file, 0, sizeof(filenamelen));
+	memset(s->file, 0, filenamelen);
 
 	space += filenamelen;
 	strcpy(s->file, file);
@@ -193,7 +193,7 @@ void* mymalloc(char* file, int line, size_t size)
 		free(s);
 		goto exit;
 	}
-	memset(s->stack, 0, sizeof(filenamelen));
+	memset(s->stack, 0, STACK_LEN);
 	StackTrace_get(Paho_thread_getid(), s->stack, STACK_LEN);
 #endif
 	s->line = line;

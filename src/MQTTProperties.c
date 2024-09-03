@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2020 IBM Corp. and others
+ * Copyright (c) 2017, 2024 IBM Corp. and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -38,7 +38,7 @@ static struct nameToType
   {MQTTPROPERTY_CODE_CORRELATION_DATA, MQTTPROPERTY_TYPE_BINARY_DATA},
   {MQTTPROPERTY_CODE_SUBSCRIPTION_IDENTIFIER, MQTTPROPERTY_TYPE_VARIABLE_BYTE_INTEGER},
   {MQTTPROPERTY_CODE_SESSION_EXPIRY_INTERVAL, MQTTPROPERTY_TYPE_FOUR_BYTE_INTEGER},
-  {MQTTPROPERTY_CODE_ASSIGNED_CLIENT_IDENTIFER, MQTTPROPERTY_TYPE_UTF_8_ENCODED_STRING},
+  {MQTTPROPERTY_CODE_ASSIGNED_CLIENT_IDENTIFIER, MQTTPROPERTY_TYPE_UTF_8_ENCODED_STRING},
   {MQTTPROPERTY_CODE_SERVER_KEEP_ALIVE, MQTTPROPERTY_TYPE_TWO_BYTE_INTEGER},
   {MQTTPROPERTY_CODE_AUTHENTICATION_METHOD, MQTTPROPERTY_TYPE_UTF_8_ENCODED_STRING},
   {MQTTPROPERTY_CODE_AUTHENTICATION_DATA, MQTTPROPERTY_TYPE_BINARY_DATA},
@@ -355,7 +355,7 @@ struct {
   {MQTTPROPERTY_CODE_CORRELATION_DATA, "CORRELATION_DATA"},
   {MQTTPROPERTY_CODE_SUBSCRIPTION_IDENTIFIER, "SUBSCRIPTION_IDENTIFIER"},
   {MQTTPROPERTY_CODE_SESSION_EXPIRY_INTERVAL, "SESSION_EXPIRY_INTERVAL"},
-  {MQTTPROPERTY_CODE_ASSIGNED_CLIENT_IDENTIFER, "ASSIGNED_CLIENT_IDENTIFER"},
+  {MQTTPROPERTY_CODE_ASSIGNED_CLIENT_IDENTIFIER, "ASSIGNED_CLIENT_IDENTIFIER"},
   {MQTTPROPERTY_CODE_SERVER_KEEP_ALIVE, "SERVER_KEEP_ALIVE"},
   {MQTTPROPERTY_CODE_AUTHENTICATION_METHOD, "AUTHENTICATION_METHOD"},
   {MQTTPROPERTY_CODE_AUTHENTICATION_DATA, "AUTHENTICATION_DATA"},
@@ -475,10 +475,10 @@ int MQTTProperties_propertyCount(MQTTProperties *props, enum MQTTPropertyCodes p
 }
 
 
-int MQTTProperties_getNumericValueAt(MQTTProperties *props, enum MQTTPropertyCodes propid, int index)
+int64_t MQTTProperties_getNumericValueAt(MQTTProperties *props, enum MQTTPropertyCodes propid, int index)
 {
 	int i = 0;
-	int rc = -9999999;
+	int64_t rc = -9999999;
 	int cur_index = 0;
 
 	for (i = 0; i < props->count; ++i)
@@ -515,7 +515,7 @@ int MQTTProperties_getNumericValueAt(MQTTProperties *props, enum MQTTPropertyCod
 }
 
 
-int MQTTProperties_getNumericValue(MQTTProperties *props, enum MQTTPropertyCodes propid)
+int64_t MQTTProperties_getNumericValue(MQTTProperties *props, enum MQTTPropertyCodes propid)
 {
 	return MQTTProperties_getNumericValueAt(props, propid, 0);
 }

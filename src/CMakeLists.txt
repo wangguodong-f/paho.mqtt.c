@@ -207,6 +207,7 @@ if(PAHO_BUILD_STATIC)
     )
   else()
     install(TARGETS paho-mqtt3c-static paho-mqtt3a-static
+      EXPORT eclipse-paho-mqtt-cTargets
       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     )
   endif()
@@ -371,6 +372,7 @@ if(PAHO_WITH_SSL OR PAHO_WITH_LIBRESSL)
       )
     else()
       install(TARGETS paho-mqtt3cs-static paho-mqtt3as-static
+        EXPORT eclipse-paho-mqtt-cTargets
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
       )
     endif()
