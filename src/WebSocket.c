@@ -863,7 +863,7 @@ char *WebSocket_getRawSocketData(networkHandles *net, size_t bytes, size_t* actu
 		goto exit;
 
 	bytes = bytes_requested;
-    
+
 	// if possible, return data from the buffer
 	if (bytes > 0)
 	{
@@ -1052,9 +1052,9 @@ int WebSocket_receiveFrame(networkHandles *net, size_t *actual_len)
 
 				/* invalid websocket packet must return error */
 				if ( opcode < WebSocket_OP_CONTINUE ||
-				     opcode > WebSocket_OP_PONG ||
-				     ( opcode > WebSocket_OP_BINARY &&
-				       opcode < WebSocket_OP_CLOSE ) )
+					 opcode > WebSocket_OP_PONG ||
+					 ( opcode > WebSocket_OP_BINARY &&
+					   opcode < WebSocket_OP_CLOSE ) )
 				{
 					rc = SOCKET_ERROR;
 					goto exit;
@@ -1068,7 +1068,7 @@ int WebSocket_receiveFrame(networkHandles *net, size_t *actual_len)
 				if ( payload_len == 126 )
 				{
 					/* If 126, the following 2 bytes interpreted as a
-					      16-bit unsigned integer are the payload length. */
+						  16-bit unsigned integer are the payload length. */
 					b = WebSocket_getRawSocketData(net, 2u, &len, &rcs);
 					if (rcs == SOCKET_ERROR)
 					{
@@ -1091,7 +1091,7 @@ int WebSocket_receiveFrame(networkHandles *net, size_t *actual_len)
 				else if ( payload_len == 127 )
 				{
 					 /* If 127, the following 8 bytes interpreted as a 64-bit unsigned integer (the
-					      most significant bit MUST be 0) are the payload length */
+						  most significant bit MUST be 0) are the payload length */
 					b = WebSocket_getRawSocketData(net, 8u, &len, &rcs);
 					if (rcs == SOCKET_ERROR)
 					{
@@ -1318,61 +1318,61 @@ int WebSocket_upgrade( networkHandles *net )
 
 	FUNC_ENTRY;
 	if ( net->websocket_key )
-    {
-        char ws_key[62u] = {0};
-        size_t rcv = 0u;
-        char *read_buf;
+	{
+		char ws_key[62u] = {0};
+		size_t rcv = 0u;
+		char *read_buf;
 #if defined(OPENSSL) && OPENSSL_VERSION_NUMBER >= 0x030000000
-        EVP_MD_CTX *sha1_ctx = NULL;
-        unsigned char sha_hash[EVP_MAX_MD_SIZE];
-        unsigned int sha_len = 0;
+		EVP_MD_CTX *sha1_ctx = NULL;
+		unsigned char sha_hash[EVP_MAX_MD_SIZE];
+		unsigned int sha_len = 0;
 #else
-        SHA_CTX ctx;
-        unsigned char sha_hash[SHA1_DIGEST_LENGTH];
+		SHA_CTX ctx;
+		unsigned char sha_hash[SHA1_DIGEST_LENGTH];
 #endif
 
-        /* calculate the expected websocket key, expected from server */
-        snprintf(ws_key, sizeof(ws_key), "%s%s", net->websocket_key, ws_guid);
+		/* calculate the expected websocket key, expected from server */
+		snprintf(ws_key, sizeof(ws_key), "%s%s", net->websocket_key, ws_guid);
 #if defined(OPENSSL) && OPENSSL_VERSION_NUMBER >= 0x030000000
-        sha1_ctx = EVP_MD_CTX_new();
-        if (sha1_ctx) {
-            rc = EVP_DigestInit(sha1_ctx, EVP_sha1());
-            if (rc == 0)
-                Log(LOG_ERROR, 1, "EVP_DigestInit failed");
-            else
-                rc = EVP_DigestUpdate(sha1_ctx, ws_key, strlen(ws_key));
-            if (rc == 0)
-                Log(LOG_ERROR, 1, "EVP_DigestUpdate failed");
-            else
-                rc = EVP_DigestFinal(sha1_ctx, sha_hash, &sha_len);
-            if (rc == 0)
-                Log(LOG_ERROR, 1, "EVP_DigestFinal failed");
-            EVP_MD_CTX_free(sha1_ctx);
-            if (rc == 0)
-            {
-                rc = SOCKET_ERROR;
-                goto exit;
-            }
-        } else
-        {
-            Log(LOG_ERROR, 1, "EVP_MD_CTX_new failed");
-            rc = SOCKET_ERROR;
-            goto exit;
-        }
+		sha1_ctx = EVP_MD_CTX_new();
+		if (sha1_ctx) {
+			rc = EVP_DigestInit(sha1_ctx, EVP_sha1());
+			if (rc == 0)
+				Log(LOG_ERROR, 1, "EVP_DigestInit failed");
+			else
+				rc = EVP_DigestUpdate(sha1_ctx, ws_key, strlen(ws_key));
+			if (rc == 0)
+				Log(LOG_ERROR, 1, "EVP_DigestUpdate failed");
+			else
+				rc = EVP_DigestFinal(sha1_ctx, sha_hash, &sha_len);
+			if (rc == 0)
+				Log(LOG_ERROR, 1, "EVP_DigestFinal failed");
+			EVP_MD_CTX_free(sha1_ctx);
+			if (rc == 0)
+			{
+				rc = SOCKET_ERROR;
+				goto exit;
+			}
+		} else
+		{
+			Log(LOG_ERROR, 1, "EVP_MD_CTX_new failed");
+			rc = SOCKET_ERROR;
+			goto exit;
+		}
 		Base64_encode( ws_key, sizeof(ws_key), sha_hash, sha_len);
 #else
-        SHA1_Init( &ctx );
-        SHA1_Update( &ctx, ws_key, strlen(ws_key));
-        SHA1_Final( sha_hash, &ctx );
-        Base64_encode( ws_key, sizeof(ws_key), sha_hash, SHA1_DIGEST_LENGTH );
+		SHA1_Init( &ctx );
+		SHA1_Update( &ctx, ws_key, strlen(ws_key));
+		SHA1_Final( sha_hash, &ctx );
+		Base64_encode( ws_key, sizeof(ws_key), sha_hash, SHA1_DIGEST_LENGTH );
 #endif
 
-        read_buf = WebSocket_getRawSocketData( net, 12u, &rcv, &rc);
+		read_buf = WebSocket_getRawSocketData( net, 12u, &rcv, &rc);
 		if (rc == SOCKET_ERROR)
 			goto exit;
 
 		if ((read_buf == NULL) || rcv < 12u)
-        {
+		{
 			Log(TRACE_PROTOCOL, 1, "WebSocket upgrade read not complete %lu", rcv );
 			rc = TCPSOCKET_INTERRUPTED;
 			goto exit;
