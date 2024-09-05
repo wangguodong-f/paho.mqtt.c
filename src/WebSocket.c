@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2022 Wind River Systems, Inc., Ian Craggs and others
+ * Copyright (c) 2018, 2024 Wind River Systems, Inc., Ian Craggs and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -25,7 +25,11 @@
 
 #include "Base64.h"
 #include "Log.h"
+#if defined(OPENSSL) && OPENSSL_VERSION_NUMBER >= 0x030000000
+#include "openssl/evp.h"
+#else
 #include "SHA1.h"
+#endif
 #include "LinkedList.h"
 #include "MQTTProtocolOut.h"
 #include "SocketBuffer.h"
@@ -121,6 +125,7 @@ static void uuid_generate( uuid_t out )
 }
 
 /** @brief converts a uuid to a string */
+#if 0
 static void uuid_unparse( uuid_t uu, char *out )
 {
 	int i;
@@ -135,6 +140,7 @@ static void uuid_unparse( uuid_t uu, char *out )
 	}
 	*out = '\0';
 }
+#endif
 #endif /* else if defined(USE_LIBUUID) */
 #endif /* if !(defined(_WIN32) || defined(_WIN64)) */
 
@@ -1312,25 +1318,61 @@ int WebSocket_upgrade( networkHandles *net )
 
 	FUNC_ENTRY;
 	if ( net->websocket_key )
-	{
-		SHA_CTX ctx;
-		char ws_key[62u] = { 0 };
-		unsigned char sha_hash[SHA1_DIGEST_LENGTH];
-		size_t rcv = 0u;
-		char *read_buf;
+    {
+        char ws_key[62u] = {0};
+        size_t rcv = 0u;
+        char *read_buf;
+#if defined(OPENSSL) && OPENSSL_VERSION_NUMBER >= 0x030000000
+        EVP_MD_CTX *sha1_ctx = NULL;
+        unsigned char sha_hash[EVP_MAX_MD_SIZE];
+        unsigned int sha_len = 0;
+#else
+        SHA_CTX ctx;
+        unsigned char sha_hash[SHA1_DIGEST_LENGTH];
+#endif
 
-		/* calculate the expected websocket key, expected from server */
-		snprintf( ws_key, sizeof(ws_key), "%s%s", net->websocket_key, ws_guid );
-		SHA1_Init( &ctx );
-		SHA1_Update( &ctx, ws_key, strlen(ws_key));
-		SHA1_Final( sha_hash, &ctx );
-		Base64_encode( ws_key, sizeof(ws_key), sha_hash, SHA1_DIGEST_LENGTH );
+        /* calculate the expected websocket key, expected from server */
+        snprintf(ws_key, sizeof(ws_key), "%s%s", net->websocket_key, ws_guid);
+#if defined(OPENSSL) && OPENSSL_VERSION_NUMBER >= 0x030000000
+        sha1_ctx = EVP_MD_CTX_new();
+        if (sha1_ctx) {
+            rc = EVP_DigestInit(sha1_ctx, EVP_sha1());
+            if (rc == 0)
+                Log(LOG_ERROR, 1, "EVP_DigestInit failed");
+            else
+                rc = EVP_DigestUpdate(sha1_ctx, ws_key, strlen(ws_key));
+            if (rc == 0)
+                Log(LOG_ERROR, 1, "EVP_DigestUpdate failed");
+            else
+                rc = EVP_DigestFinal(sha1_ctx, sha_hash, &sha_len);
+            if (rc == 0)
+                Log(LOG_ERROR, 1, "EVP_DigestFinal failed");
+            EVP_MD_CTX_free(sha1_ctx);
+            if (rc == 0)
+            {
+                rc = SOCKET_ERROR;
+                goto exit;
+            }
+        } else
+        {
+            Log(LOG_ERROR, 1, "EVP_MD_CTX_new failed");
+            rc = SOCKET_ERROR;
+            goto exit;
+        }
+		Base64_encode( ws_key, sizeof(ws_key), sha_hash, sha_len);
+#else
+        SHA1_Init( &ctx );
+        SHA1_Update( &ctx, ws_key, strlen(ws_key));
+        SHA1_Final( sha_hash, &ctx );
+        Base64_encode( ws_key, sizeof(ws_key), sha_hash, SHA1_DIGEST_LENGTH );
+#endif
 
-		read_buf = WebSocket_getRawSocketData( net, 12u, &rcv, &rc);
+        read_buf = WebSocket_getRawSocketData( net, 12u, &rcv, &rc);
 		if (rc == SOCKET_ERROR)
 			goto exit;
 
-		if ((read_buf == NULL) || rcv < 12u) {
+		if ((read_buf == NULL) || rcv < 12u)
+        {
 			Log(TRACE_PROTOCOL, 1, "WebSocket upgrade read not complete %lu", rcv );
 			rc = TCPSOCKET_INTERRUPTED;
 			goto exit;
