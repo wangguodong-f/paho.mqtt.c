@@ -498,7 +498,6 @@ void MQTTAsync_destroy(MQTTAsync* handle)
 
 	MQTTAsync_NULLPublishResponses(m);
 	MQTTAsync_freeResponses(m);
-	MQTTAsync_NULLPublishCommands(m);
 	MQTTAsync_freeCommands(m);
 	ListFree(m->responses);
 

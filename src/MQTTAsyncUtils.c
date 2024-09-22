@@ -2500,6 +2500,7 @@ void MQTTAsync_NULLPublishResponses(MQTTAsyncs* m)
 }
 
 
+#if 0 /* removed as part of fix for issue 1474 */
 /*
  * Set destinationName and payload to NULL in all commands
  * for a client, so that these memory locations aren't freed twice as they
@@ -2529,6 +2530,7 @@ void MQTTAsync_NULLPublishCommands(MQTTAsyncs* m)
 	}
 	FUNC_EXIT;
 }
+#endif
 
 
 /**
