@@ -1,6 +1,5 @@
 #*******************************************************************************
-#  Copyright (c) 2015, 2023 logi.cals GmbH and others
-#  Copyright (c) 2023 Frank Pagliughi <fpagliughi@mindspring.com>
+#  Copyright (c) 2015, 2024 logi.cals GmbH, Frank Pagliughi <fpagliughi@mindspring.com> and others
 #
 #  All rights reserved. This program and the accompanying materials
 #  are made available under the terms of the Eclipse Public License v2.0
@@ -53,8 +52,8 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 endif()
 
 ## build options
-
 option(PAHO_WITH_SSL "Flag that defines whether to build ssl-enabled binaries too. " FALSE)
+option(PAHO_WITH_LIBRESSL "Flag that defines whether to build ssl-enabled binaries with LibreSSL instead of OpenSSL. " FALSE)
 option(PAHO_WITH_LIBUUID "Flag that defines whether libuuid or a custom uuid implementation should be used" FALSE)
 option(PAHO_BUILD_SHARED "Build shared library" TRUE)
 option(PAHO_BUILD_STATIC "Build static library" FALSE)
@@ -82,7 +81,7 @@ if(NOT PAHO_BUILD_SHARED AND NOT PAHO_BUILD_STATIC)
   message(FATAL_ERROR "You must set either PAHO_BUILD_SHARED, PAHO_BUILD_STATIC, or both")
 endif()
 
-if(PAHO_BUILD_SAMPLES AND NOT PAHO_WITH_SSL)
+if(PAHO_BUILD_SAMPLES AND NOT (PAHO_WITH_SSL OR PAHO_WITH_LIBRESSL))
   message(WARNING "You must build with SSL to build the full set of samples")
 endif()
 

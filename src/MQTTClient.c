@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2023 IBM Corp., Ian Craggs and others
+ * Copyright (c) 2009, 2024 IBM Corp., Ian Craggs and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -1428,7 +1428,7 @@ static MQTTResponse MQTTClient_connectURIVersion(MQTTClient handle, MQTTClient_c
 				m->c->connected = 1;
 				m->c->good = 1;
 				m->c->connect_state = NOT_IN_PROGRESS;
-				if (MQTTVersion == 4)
+				if (MQTTVersion >= MQTTVERSION_3_1_1)
 					sessionPresent = connack->flags.bits.sessionPresent;
 				if (m->c->cleansession || m->c->cleanstart)
 					rc = MQTTClient_cleanSession(m->c);
@@ -1454,6 +1454,24 @@ static MQTTResponse MQTTClient_connectURIVersion(MQTTClient handle, MQTTClient_c
 						goto exit;
 					}
 					*resp.properties = MQTTProperties_copy(&connack->properties);
+
+					if (MQTTProperties_hasProperty(&connack->properties, MQTTPROPERTY_CODE_SERVER_KEEP_ALIVE))
+					{
+						/* update the keep alive from the server keep alive */
+						int server_keep_alive = MQTTProperties_getNumericValue(&connack->properties, MQTTPROPERTY_CODE_SERVER_KEEP_ALIVE);
+						if (server_keep_alive != -999999)
+						{
+							Log(LOG_PROTOCOL, -1, "Setting keep alive interval to server keep alive %d", server_keep_alive);
+							m->c->keepAliveInterval = server_keep_alive;
+						}
+					}
+					else if (m->c->keepAliveInterval != m->c->savedKeepAliveInterval)
+					{
+						/* if the keep alive has been previously updated with a server keep alive, but there is no server keep alive
+						on this connect, reset it to the value requested in the original connect API */
+						Log(LOG_PROTOCOL, -1, "Resetting keep alive interval to %d", m->c->savedKeepAliveInterval);
+						m->c->keepAliveInterval = m->c->savedKeepAliveInterval;
+					}
 				}
 			}
 			MQTTPacket_freeConnack(connack);
@@ -1507,7 +1525,7 @@ static MQTTResponse MQTTClient_connectURI(MQTTClient handle, MQTTClient_connectO
 	start = MQTTTime_start_clock();
 
 	m->currentServerURI = serverURI;
-	m->c->keepAliveInterval = options->keepAliveInterval;
+	m->c->keepAliveInterval = m->c->savedKeepAliveInterval = options->keepAliveInterval;
 	m->c->retryInterval = options->retryInterval;
 	setRetryLoopInterval(options->keepAliveInterval);
 	m->c->MQTTVersion = options->MQTTVersion;

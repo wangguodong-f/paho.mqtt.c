@@ -1,6 +1,5 @@
 #*******************************************************************************
-#  Copyright (c) 2015, 2023 logi.cals GmbH and others
-#  Copyright (c) 2023, Frank Pagliughi <fpagliughi@mindspring.com>
+#  Copyright (c) 2015, 2024 logi.cals GmbH, Frank Pagliughi <fpagliughi@mindspring.com> and others
 #
 #  All rights reserved. This program and the accompanying materials
 #  are made available under the terms of the Eclipse Public License v2.0
@@ -57,7 +56,11 @@ if(NOT PAHO_HIGH_PERFORMANCE)
 endif()
 
 if(WIN32)
-  set(LIBS_SYSTEM ws2_32 crypt32 RpcRT4)
+  if(PAHO_WITH_LIBRESSL)
+    set(LIBS_SYSTEM ws2_32 crypt32 RpcRT4 bcrypt)
+  else()
+    set(LIBS_SYSTEM ws2_32 crypt32 RpcRT4)
+  endif()
 elseif(UNIX)
   if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(LIBS_SYSTEM c dl pthread rt)
@@ -75,6 +78,8 @@ elseif(UNIX)
     set(LIBS_SYSTEM c dl)
   elseif(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
     set(LIBS_SYSTEM compat pthread)
+  elseif(CMAKE_SYSTEM_NAME MATCHES "QNX")
+    set(LIBS_SYSTEM c)
   else()
     set(LIBS_SYSTEM c pthread)
   endif()
@@ -145,7 +150,7 @@ if(PAHO_BUILD_SHARED)
       PRIVATE
         ${CMAKE_BINARY_DIR})
   endforeach()
-    
+
   install(TARGETS paho-mqtt3c paho-mqtt3a
     EXPORT eclipse-paho-mqtt-cTargets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -204,6 +209,7 @@ if(PAHO_BUILD_STATIC)
     )
   else()
     install(TARGETS paho-mqtt3c-static paho-mqtt3a-static
+      EXPORT eclipse-paho-mqtt-cTargets
       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     )
   endif()
@@ -222,15 +228,28 @@ install(
     ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-if(PAHO_WITH_SSL)
-  set(OPENSSL_ROOT_DIR "" CACHE PATH "Directory containing OpenSSL libraries and includes")
-  find_package(OpenSSL REQUIRED)
+if(PAHO_WITH_SSL OR PAHO_WITH_LIBRESSL)
+  if(PAHO_WITH_LIBRESSL)
+    set(LIBRESSL_ROOT_DIR "" CACHE PATH "Directory containing LibreSSL libraries and includes")
+    find_package(LibreSSL REQUIRED)
+    set(SSL_INCLUDE_DIR ${LIBRESSL_INCLUDE_DIR} CACHE PATH "Directory containing SSL includes")
+    set(SSL_LIBRARY_NAME LibreSSL CACHE STRING "Name of the used SSL library")
+    set(SSL_ROOT_DIR ${LIBRESSL_ROOT_DIR} CACHE PATH "Directory containing SSL libraries and includes")
+  else()
+    set(OPENSSL_ROOT_DIR "" CACHE PATH "Directory containing OpenSSL libraries and includes")
+    find_package(OpenSSL REQUIRED)
+    set(SSL_INCLUDE_DIR ${OPENSSL_INCLUDE_DIR} CACHE PATH "Directory containing SSL includes")
+    set(SSL_LIBRARY_NAME OpenSSL CACHE STRING "Name of the used SSL library")
+    set(SSL_ROOT_DIR ${OPENSSL_ROOT_DIR} CACHE PATH "Directory containing SSL libraries and includes")
+  endif()
+  message("Use ${SSL_LIBRARY_NAME} at ${SSL_ROOT_DIR}")
+  message("SSL_INCLUDE_DIR: ${SSL_INCLUDE_DIR} ${LIBRESSL_SSL_LIBRARY} ${LIBRESSL_CRYPTO_LIBRARY}")
 
   if(PAHO_BUILD_SHARED)
     ## common compilation for libpaho-mqtt3cs and libpaho-mqtt3as
     ## Note: SSL libraries must be recompiled due to ifdefs
     add_library(common_ssl_obj OBJECT ${common_src})
-    target_include_directories(common_ssl_obj PUBLIC ${OPENSSL_INCLUDE_DIR})
+    target_include_directories(common_ssl_obj PUBLIC ${SSL_INCLUDE_DIR})
 
     set_property(TARGET common_ssl_obj PROPERTY POSITION_INDEPENDENT_CODE ON)
     target_compile_definitions(common_ssl_obj PRIVATE OPENSSL=1 PAHO_MQTT_EXPORTS=1)
@@ -282,7 +301,7 @@ if(PAHO_WITH_SSL)
       )
       target_link_libraries(${TARGET}
         PUBLIC
-          OpenSSL::SSL OpenSSL::Crypto ${LIBS_SYSTEM}
+          ${SSL_LIBRARY_NAME}::SSL ${SSL_LIBRARY_NAME}::Crypto ${LIBS_SYSTEM}
       )
     endforeach()
 
@@ -298,7 +317,7 @@ if(PAHO_WITH_SSL)
     ## common compilation for libpaho-mqtt3cs and libpaho-mqtt3as
     ## Note: SSL libraries must be recompiled due ifdefs
     add_library(common_ssl_obj_static OBJECT ${common_src})
-    target_include_directories(common_ssl_obj_static PUBLIC ${OPENSSL_INCLUDE_DIR})
+    target_include_directories(common_ssl_obj_static PUBLIC ${SSL_INCLUDE_DIR})
 
     set_property(TARGET common_ssl_obj_static PROPERTY POSITION_INDEPENDENT_CODE ON)
     target_compile_definitions(common_ssl_obj_static PRIVATE OPENSSL=1 PAHO_MQTT_STATIC=1)
@@ -355,6 +374,7 @@ if(PAHO_WITH_SSL)
       )
     else()
       install(TARGETS paho-mqtt3cs-static paho-mqtt3as-static
+        EXPORT eclipse-paho-mqtt-cTargets
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
       )
     endif()
@@ -367,10 +387,9 @@ if(PAHO_WITH_SSL)
         PRIVATE
           ${CMAKE_BINARY_DIR}
       )
-
       target_link_libraries(${TARGET}
         PUBLIC
-          OpenSSL::SSL OpenSSL::Crypto ${LIBS_SYSTEM}
+          ${SSL_LIBRARY_NAME}::SSL ${SSL_LIBRARY_NAME}::Crypto ${LIBS_SYSTEM}
       )
     endforeach()
   endif()
@@ -400,9 +419,9 @@ install(
 add_executable(Base64Test EXCLUDE_FROM_ALL Base64.c Base64.h)
 target_compile_definitions(Base64Test PUBLIC BASE64_TEST)
 
-if(PAHO_WITH_SSL)
+if(PAHO_WITH_SSL OR PAHO_WITH_LIBRESSL)
   add_executable(Base64TestOpenSSL EXCLUDE_FROM_ALL Base64.c Base64.h )
-  target_link_libraries(Base64TestOpenSSL OpenSSL::SSL OpenSSL::Crypto)
+  target_link_libraries(Base64TestOpenSSL ${SSL_LIBRARY_NAME}::SSL ${SSL_LIBRARY_NAME}::Crypto)
   target_compile_definitions(Base64TestOpenSSL PUBLIC BASE64_TEST OPENSSL=1)
 endif()
 
@@ -410,8 +429,8 @@ endif()
 add_executable(Sha1Test EXCLUDE_FROM_ALL SHA1.c SHA1.h)
 target_compile_definitions(Sha1Test PUBLIC SHA1_TEST)
 
-if(PAHO_WITH_SSL)
+if(PAHO_WITH_SSL OR PAHO_WITH_LIBRESSL)
 	add_executable(Sha1TestOpenSSL EXCLUDE_FROM_ALL SHA1.c SHA1.h)
-	target_link_libraries(Sha1TestOpenSSL OpenSSL::SSL OpenSSL::Crypto)
+	target_link_libraries(Sha1TestOpenSSL ${SSL_LIBRARY_NAME}::SSL ${SSL_LIBRARY_NAME}::Crypto)
 	target_compile_definitions(Sha1TestOpenSSL PUBLIC SHA1_TEST OPENSSL=1)
 endif()

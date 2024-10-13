@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2023 IBM Corp.
+ * Copyright (c) 2009, 2024 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -248,7 +248,7 @@ free_exit:
 exit:
 	FUNC_EXIT_RC(rc);
 	return rc;
-};
+}
 
 
 /** Retrieve a wire message from the client persistence directory.

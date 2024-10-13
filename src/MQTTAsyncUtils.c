@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2023 IBM Corp., Ian Craggs and others
+ * Copyright (c) 2009, 2024 IBM Corp., Ian Craggs and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -36,6 +36,11 @@
 #include "OsWrapper.h"
 #include "WebSocket.h"
 #include "Proxy.h"
+
+#if defined(OPENSSL) && defined(LIBRESSL_VERSION_NUMBER)
+	#include <openssl/err.h>
+#endif
+
 
 static int clientSockCompare(void* a, void* b);
 static int MQTTAsync_checkConn(MQTTAsync_command* command, MQTTAsyncs* client, int was_connected);
@@ -1821,7 +1826,7 @@ thread_return_type WINAPI MQTTAsync_sendThread(void* n)
 	MQTTAsync_unlock_mutex(mqttasync_mutex);
 
 #if defined(OPENSSL)
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
+#if ((OPENSSL_VERSION_NUMBER < 0x1010000fL) || defined(LIBRESSL_VERSION_NUMBER))
 	ERR_remove_state(0);
 #else
 	OPENSSL_thread_stop();
@@ -1992,6 +1997,26 @@ static int MQTTAsync_completeConnection(MQTTAsyncs* m, Connack* connack)
 				MQTTProtocol_retry(zero, 1, 1);
 				if (m->c->connected != 1)
 					rc = MQTTASYNC_DISCONNECTED;
+			}
+			if (m->c->MQTTVersion == MQTTVERSION_5)
+			{
+				if (MQTTProperties_hasProperty(&connack->properties, MQTTPROPERTY_CODE_SERVER_KEEP_ALIVE))
+				{
+					/* update the keep alive from the server keep alive */
+					int server_keep_alive = MQTTProperties_getNumericValue(&connack->properties, MQTTPROPERTY_CODE_SERVER_KEEP_ALIVE);
+					if (server_keep_alive != -999999)
+					{
+						Log(LOG_PROTOCOL, -1, "Setting keep alive interval to server keep alive %d", server_keep_alive);
+						m->c->keepAliveInterval = server_keep_alive;
+					}
+				}
+				else if (m->c->keepAliveInterval != m->c->savedKeepAliveInterval)
+				{
+					/* if the keep alive has been previously updated with a server keep alive, but there is no server keep alive
+					on this connect, reset it to the value requested in the original connect API */
+					Log(LOG_PROTOCOL, -1, "Resetting keep alive interval to %d", m->c->savedKeepAliveInterval);
+					m->c->keepAliveInterval = m->c->savedKeepAliveInterval;
+				}
 			}
 		}
 		m->pack = NULL;
@@ -2330,7 +2355,7 @@ thread_return_type WINAPI MQTTAsync_receiveThread(void* n)
 #endif
 
 #if defined(OPENSSL)
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
+#if ((OPENSSL_VERSION_NUMBER < 0x1010000fL) || defined(LIBRESSL_VERSION_NUMBER))
 	ERR_remove_state(0);
 #else
 	OPENSSL_thread_stop();
@@ -2475,6 +2500,7 @@ void MQTTAsync_NULLPublishResponses(MQTTAsyncs* m)
 }
 
 
+#if 0 /* removed as part of fix for issue 1474 */
 /*
  * Set destinationName and payload to NULL in all commands
  * for a client, so that these memory locations aren't freed twice as they
@@ -2504,6 +2530,7 @@ void MQTTAsync_NULLPublishCommands(MQTTAsyncs* m)
 	}
 	FUNC_EXIT;
 }
+#endif
 
 
 /**
@@ -2729,19 +2756,9 @@ int MQTTAsync_assignMsgId(MQTTAsyncs* m)
 {
 	int start_msgid;
 	int msgid;
-	thread_id_type thread_id = 0;
-	int locked = 0;
 
 	/* need to check: commands list and response list for a client */
 	FUNC_ENTRY;
-	/* We might be called in a callback. In which case, this mutex will be already locked. */
-	thread_id = Paho_thread_getid();
-	if (thread_id != sendThread_id && thread_id != receiveThread_id)
-	{
-		MQTTAsync_lock_mutex(mqttasync_mutex);
-		locked = 1;
-	}
-
 	/* Fetch last message ID in locked state */
 	start_msgid = m->c->msgID;
 	msgid = start_msgid;
@@ -2762,8 +2779,6 @@ int MQTTAsync_assignMsgId(MQTTAsyncs* m)
 	MQTTAsync_unlock_mutex(mqttcommand_mutex);
 	if (msgid != 0)
 		m->c->msgID = msgid;
-	if (locked)
-		MQTTAsync_unlock_mutex(mqttasync_mutex);
 	FUNC_EXIT_RC(msgid);
 	return msgid;
 }

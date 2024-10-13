@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2023 IBM Corp., Ian Craggs and others
+ * Copyright (c) 2009, 2024 IBM Corp., Ian Craggs and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -104,6 +104,8 @@
 #include "MQTTSubscribeOpts.h"
 #if !defined(NO_PERSISTENCE)
 #include "MQTTClientPersistence.h"
+#else
+#define MQTTCLIENT_PERSISTENCE_NONE 1
 #endif
 
 /**
@@ -507,6 +509,7 @@ typedef int MQTTAsync_updateConnectOptions(void* context, MQTTAsync_connectData*
  */
 LIBMQTT_API int MQTTAsync_setUpdateConnectOptions(MQTTAsync handle, void* context, MQTTAsync_updateConnectOptions* co);
 
+#if !defined(NO_PERSISTENCE)
 /**
  * Sets the MQTTPersistence_beforeWrite() callback function for a client.
  * @param handle A valid client handle from a successful call to MQTTAsync_create().
@@ -529,7 +532,7 @@ LIBMQTT_API int MQTTAsync_setBeforePersistenceWrite(MQTTAsync handle, void* cont
  * function.  NULL removes the callback setting.
  */
 LIBMQTT_API int MQTTAsync_setAfterPersistenceRead(MQTTAsync handle, void* context, MQTTPersistence_afterRead* co);
-
+#endif
 
 /** The data returned on completion of an unsuccessful API call in the response callback onFailure. */
 typedef struct

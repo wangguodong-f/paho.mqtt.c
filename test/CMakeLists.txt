@@ -376,8 +376,7 @@ if(PAHO_BUILD_SHARED)
 	)
 endif()
 
-
-if(PAHO_WITH_SSL)
+if(PAHO_WITH_SSL OR PAHO_WITH_LIBRESSL)
 
 	if(PAHO_BUILD_STATIC)
 		add_executable(test3-static test3.c)
@@ -852,11 +851,11 @@ if(PAHO_BUILD_SHARED)
 	)
 endif()
 
-if(PAHO_WITH_SSL)
+if(PAHO_WITH_SSL OR PAHO_WITH_LIBRESSL)
 	if(PAHO_BUILD_STATIC)
 		add_executable(test5-static test5.c)
 		target_link_libraries(test5-static paho-mqtt3as-static)
-		
+
 		add_test(
 			NAME test5-1-ssl-connection-to-no-SSL-server-static
 			COMMAND test5-static "--test_no" "1" "--hostname" ${MQTT_SSL_HOSTNAME} "--client_key"	 "${CERTDIR}/client.pem" "--server_key"	"${CERTDIR}/test-root-ca.crt"
