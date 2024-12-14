@@ -31,7 +31,7 @@ The Paho C client comprises four variant libraries, shared or static:
 
 ## Usage and API
 
-Detailed API documentation [is available online](https://eclipse.github.io/paho.mqtt.c/MQTTClient/html/).  It is also available by building the Doxygen docs in the  ``doc`` directory. 
+Detailed API documentation [is available online](https://eclipse-paho.github.io/paho.mqtt.c/MQTTClient/html/).  It is also available by building the Doxygen docs in the  ``doc`` directory.
 
 Samples are available in the Doxygen docs and also in `src/samples` for reference.  These are:
 
@@ -65,13 +65,13 @@ export MQTT_C_CLIENT_TRACE_LEVEL=PROTOCOL
 
 ## Reporting bugs
 
-Please open issues in the Github project: https://github.com/eclipse/paho.mqtt.c/issues.
+Please open issues in the Github project: https://github.com/eclipse-paho/paho.mqtt.c/issues.
 
 ## More information
 
 Discussion of the Paho clients takes place on the [Eclipse paho-dev mailing list](https://dev.eclipse.org/mailman/listinfo/paho-dev).
 
-Follow Eclipse Paho on Twitter: [@eclipsepaho](https://twitter.com/eclipsepaho)
+## Follow Eclipse Paho on Twitter: [@eclipsepaho](https://twitter.com/eclipsepaho)
 
 General questions about the MQTT protocol are discussed in the [MQTT Google Group](https://groups.google.com/forum/?hl=en-US&fromgroups#!forum/mqtt).
 
