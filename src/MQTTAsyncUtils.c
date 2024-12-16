@@ -829,11 +829,19 @@ int MQTTAsync_addCommand(MQTTAsync_queuedCommand* command, int command_size)
 			rc = MQTTASYNC_COMMAND_IGNORED;
 		}
 		else
-			ListInsert(MQTTAsync_commands, command, command_size, MQTTAsync_commands->first); /* add to the head of the list */
+		{
+			ListElement* result = ListInsert(MQTTAsync_commands, command, command_size, MQTTAsync_commands->first); /* add to the head of the list */
+			if (result == NULL)
+				rc = PAHO_MEMORY_ERROR;
+		}
 	}
 	else
 	{
-		ListAppend(MQTTAsync_commands, command, command_size);
+		if (ListAppend(MQTTAsync_commands, command, command_size) == NULL)
+		{
+			rc = PAHO_MEMORY_ERROR;
+			goto exit;
+		}
 #if !defined(NO_PERSISTENCE)
 		if (command->client->c->persistence)
 		{
