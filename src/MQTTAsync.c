@@ -349,7 +349,7 @@ int MQTTAsync_createWithOptions(MQTTAsync* handle, const char* serverURI, const 
 	}
 
 	if (options && (strncmp(options->struct_id, "MQCO", 4) != 0 ||
-					options->struct_version < 0 || options->struct_version > 2))
+					options->struct_version < 0 || options->struct_version > 3))
 	{
 		rc = MQTTASYNC_BAD_STRUCTURE;
 		goto exit;
