@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2023 IBM Corp., Ian Craggs and others
+ * Copyright (c) 2009, 2024 IBM Corp., Ian Craggs and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -366,11 +366,16 @@ exit:
 int MQTTProtocol_handlePingresps(void* pack, SOCKET sock)
 {
 	Clients* client = NULL;
+	ListElement* result = NULL;
 	int rc = TCPSOCKET_COMPLETE;
 
 	FUNC_ENTRY;
-	client = (Clients*)(ListFindItem(bstate->clients, &sock, clientSocketCompare)->content);
-	Log(LOG_PROTOCOL, 21, NULL, sock, client->clientID);
+	result = ListFindItem(bstate->clients, &sock, clientSocketCompare);
+	if (result)
+	{
+		client = (Clients*)(result->content);
+		Log(LOG_PROTOCOL, 21, NULL, sock, client->clientID);
+	}
 	client->ping_outstanding = 0;
 	FUNC_EXIT_RC(rc);
 	return rc;
@@ -408,11 +413,16 @@ int MQTTProtocol_handleSubacks(void* pack, SOCKET sock)
 {
 	Suback* suback = (Suback*)pack;
 	Clients* client = NULL;
+	ListElement* result = NULL;
 	int rc = TCPSOCKET_COMPLETE;
 
 	FUNC_ENTRY;
-	client = (Clients*)(ListFindItem(bstate->clients, &sock, clientSocketCompare)->content);
-	Log(LOG_PROTOCOL, 23, NULL, sock, client->clientID, suback->msgId);
+	result = ListFindItem(bstate->clients, &sock, clientSocketCompare);
+	if (result)
+	{
+		client = (Clients*)(result->content);
+		Log(LOG_PROTOCOL, 23, NULL, sock, client->clientID, suback->msgId);
+	}
 	MQTTPacket_freeSuback(suback);
 	FUNC_EXIT_RC(rc);
 	return rc;
@@ -446,11 +456,16 @@ int MQTTProtocol_handleUnsubacks(void* pack, SOCKET sock)
 {
 	Unsuback* unsuback = (Unsuback*)pack;
 	Clients* client = NULL;
+	ListElement* result = NULL;
 	int rc = TCPSOCKET_COMPLETE;
 
 	FUNC_ENTRY;
-	client = (Clients*)(ListFindItem(bstate->clients, &sock, clientSocketCompare)->content);
-	Log(LOG_PROTOCOL, 24, NULL, sock, client->clientID, unsuback->msgId);
+	result = ListFindItem(bstate->clients, &sock, clientSocketCompare);
+	if (result)
+	{
+		client = (Clients*)(result->content);
+		Log(LOG_PROTOCOL, 24, NULL, sock, client->clientID, unsuback->msgId);
+	}
 	MQTTPacket_freeUnsuback(unsuback);
 	FUNC_EXIT_RC(rc);
 	return rc;
@@ -467,11 +482,16 @@ int MQTTProtocol_handleDisconnects(void* pack, SOCKET sock)
 {
 	Ack* disconnect = (Ack*)pack;
 	Clients* client = NULL;
+	ListElement* result = NULL;
 	int rc = TCPSOCKET_COMPLETE;
 
 	FUNC_ENTRY;
-	client = (Clients*)(ListFindItem(bstate->clients, &sock, clientSocketCompare)->content);
-	Log(LOG_PROTOCOL, 30, NULL, sock, client->clientID, disconnect->rc);
+	result = ListFindItem(bstate->clients, &sock, clientSocketCompare);
+	if (result)
+	{
+		client = (Clients*)(result->content);
+		Log(LOG_PROTOCOL, 30, NULL, sock, client->clientID, disconnect->rc);
+	}
 	MQTTPacket_freeAck(disconnect);
 	FUNC_EXIT_RC(rc);
 	return rc;
