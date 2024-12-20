@@ -1295,11 +1295,15 @@ static int MQTTAsync_processCommand(void)
 					command = MQTTAsync_restoreCommand(buffer, buflen, MQTTVersion, command);
 				}
 				else
+				{
 					Log(LOG_ERROR, -1, "Error restoring command: rc %d from pget\n", rc);
+					command = NULL;
+				}
 				if (buffer)
 					free(buffer);
 			}
-			MQTTAsync_unpersistCommand(command);
+			if (command)
+				MQTTAsync_unpersistCommand(command);
 		}
 #endif
 	}
