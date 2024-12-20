@@ -456,9 +456,9 @@ static MQTTAsync_queuedCommand* MQTTAsync_restoreCommand(char* buffer, int bufle
 
 	if (&ptr[sizeof(int) + sizeof(MQTTAsync_token)] > endpos)
 		goto error_exit;
-	command->type = *(int*)ptr;
+	memcpy(&command->type, ptr, sizeof(int));
 	ptr += sizeof(int);
-	command->token = *(MQTTAsync_token*)ptr;
+	memcpy(&command->token, ptr, sizeof(MQTTAsync_token));
 	ptr += sizeof(MQTTAsync_token);
 
 	switch (command->type)
@@ -468,7 +468,7 @@ static MQTTAsync_queuedCommand* MQTTAsync_restoreCommand(char* buffer, int bufle
 				break;
 			if (&ptr[sizeof(int)] > endpos)
 				goto error_exit;
-			command->details.sub.count = *(int*)ptr;
+			memcpy(&command->details.sub.count, ptr, sizeof(int));
 			ptr += sizeof(int);
 
 			if (command->details.sub.count > 0)
@@ -502,7 +502,7 @@ static MQTTAsync_queuedCommand* MQTTAsync_restoreCommand(char* buffer, int bufle
 
 				if (&ptr[sizeof(int)] > endpos)
 					goto error_exit;
-				command->details.sub.qoss[i] = *(int*)ptr;
+				memcpy(&command->details.sub.qoss[i], ptr, sizeof(int));
 				ptr += sizeof(int);
 
 				if (MQTTVersion >= MQTTVERSION_5)
@@ -511,12 +511,12 @@ static MQTTAsync_queuedCommand* MQTTAsync_restoreCommand(char* buffer, int bufle
 						goto error_exit;
 					if (command->details.sub.count == 1)
 					{
-						command->details.sub.opts = *(MQTTSubscribe_options*)ptr;
+						memcpy(&command->details.sub.opts, ptr, sizeof(MQTTSubscribe_options));
 						ptr += sizeof(MQTTSubscribe_options);
 					}
 					else
 					{
-						command->details.sub.optlist[i] = *(MQTTSubscribe_options*)ptr;
+						memcpy(&command->details.sub.optlist[i], ptr, sizeof(MQTTSubscribe_options));
 						ptr += sizeof(MQTTSubscribe_options);
 					}
 				}
@@ -529,7 +529,7 @@ static MQTTAsync_queuedCommand* MQTTAsync_restoreCommand(char* buffer, int bufle
 
 			if (&ptr[sizeof(int)] > endpos)
 				goto error_exit;
-			command->details.unsub.count = *(int*)ptr;
+			memcpy(&command->details.unsub.count, ptr, sizeof(int));
 			ptr += sizeof(int);
 
 			if (command->details.unsub.count > 0)
@@ -567,7 +567,7 @@ static MQTTAsync_queuedCommand* MQTTAsync_restoreCommand(char* buffer, int bufle
 
 			if (&ptr[sizeof(int)] > endpos)
 				goto error_exit;
-			command->details.pub.payloadlen = *(int*)ptr;
+			memcpy(&command->details.pub.payloadlen, ptr, sizeof(int));
 			ptr += sizeof(int);
 
 			data_size = command->details.pub.payloadlen;
@@ -583,10 +583,10 @@ static MQTTAsync_queuedCommand* MQTTAsync_restoreCommand(char* buffer, int bufle
 
 			if (&ptr[sizeof(int)*2] > endpos)
 				goto error_exit;
-			command->details.pub.qos = *(int*)ptr;
+			memcpy(&command->details.pub.qos, ptr, sizeof(int));
 			ptr += sizeof(int);
 
-			command->details.pub.retained = *(int*)ptr;
+			memcpy(&command->details.pub.retained, ptr, sizeof(int));
 			ptr += sizeof(int);
 			break;
 
