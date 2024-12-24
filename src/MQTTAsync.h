@@ -78,6 +78,7 @@
  * <li>@ref tracing</li>
  * <li>@ref auto_reconnect</li>
  * <li>@ref offline_publish</li>
+ * <li>@ref HTTP_proxies</li>
  * </ul>
  * @endcond
  */
@@ -1374,11 +1375,13 @@ typedef struct
 	 */
 	const MQTTAsync_nameValue* httpHeaders;
 	/**
-	 * HTTP proxy
-	 */
+	* The string value of the HTTP proxy. Examples:
+    *  - http://your.proxy.server:8080/
+    *  - http://user:pass@my.proxy.server:8080/
+	*/
 	const char* httpProxy;
 	/**
-	 * HTTPS proxy
+	 * HTTPS proxy setting. See ::MQTTAsync_connectOptions.httpProxy and the section @ref HTTP_proxies.
 	 */
 	const char* httpsProxy;
 } MQTTAsync_connectOptions;
@@ -2377,6 +2380,17 @@ exit:
     20130528 163909.209 Heap scan end
   * @endcode
   * @endcond
+  *
+√* @page HTTP_proxies HTTP Proxies
+  * The use of HTTP proxies can be controlled by environment variables or API calls.
+  *
+  * The ::MQTTAsync_connectOptions.httpProxy and ::MQTTAsync_connectOptions.httpsProxy fields
+  * of the ::MQTTAsync_connectOptions structure override any settings in the environment.
+  *
+  * If the environment variable PAHO_C_CLIENT_USE_HTTP_PROXY is set to TRUE, then the
+  * http_proxy or https_proxy environment variables are used, for plain TCP and TLS-secured
+  * connections respectively.
+  *
   */
 
 #if defined(__cplusplus)

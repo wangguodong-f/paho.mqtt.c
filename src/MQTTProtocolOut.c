@@ -222,7 +222,7 @@ int MQTTProtocol_connect(const char* ip_address, Clients* aClient, int websocket
 	int rc = 0,
 		port;
 	size_t addr_len;
-	char* p0;
+	char* p0 = NULL;
 
 	FUNC_ENTRY;
 	aClient->good = 1;
@@ -230,7 +230,15 @@ int MQTTProtocol_connect(const char* ip_address, Clients* aClient, int websocket
 	if (aClient->httpProxy)
 		p0 = aClient->httpProxy;
 	else
-		p0 = getenv("http_proxy");
+	{
+		/* Don't use the environment HTTP proxy settings by default - for backwards compatibility */
+		char* use_proxy = getenv("PAHO_C_CLIENT_USE_HTTP_PROXY");
+		if (use_proxy)
+		{
+			if (strncmp(use_proxy, "TRUE", strlen("TRUE")) == 0)
+				p0 = getenv("http_proxy");
+		}
+	}
 
 	if (p0)
 	{
