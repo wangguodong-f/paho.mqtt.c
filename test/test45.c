@@ -1013,7 +1013,7 @@ void test4_onConnect(void* context, MQTTAsync_successData5* response)
 	MQTTAsync_callOptions opts = MQTTAsync_callOptions_initializer;
 	int rc;
 
-	test4_packet_size = MQTTProperties_getNumericValue(&response->properties, MQTTPROPERTY_CODE_MAXIMUM_PACKET_SIZE);
+	test4_packet_size = (int)MQTTProperties_getNumericValue(&response->properties, MQTTPROPERTY_CODE_MAXIMUM_PACKET_SIZE);
 
 	MyLog(LOGA_DEBUG, "In connect onSuccess callback, context %p", context);
 	opts.onSuccess5 = test4_onSubscribe;

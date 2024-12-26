@@ -890,7 +890,7 @@ int MQTTAsync_connect(MQTTAsync handle, const MQTTAsync_connectOptions* options)
 			*m->connectProps = MQTTProperties_copy(options->connectProperties);
 
 			if (MQTTProperties_hasProperty(options->connectProperties, MQTTPROPERTY_CODE_SESSION_EXPIRY_INTERVAL))
-				m->c->sessionExpiry = MQTTProperties_getNumericValue(options->connectProperties,
+				m->c->sessionExpiry = (int)MQTTProperties_getNumericValue(options->connectProperties,
 						MQTTPROPERTY_CODE_SESSION_EXPIRY_INTERVAL);
 
 		}

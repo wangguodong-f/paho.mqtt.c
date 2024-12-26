@@ -1458,7 +1458,7 @@ static MQTTResponse MQTTClient_connectURIVersion(MQTTClient handle, MQTTClient_c
 					if (MQTTProperties_hasProperty(&connack->properties, MQTTPROPERTY_CODE_SERVER_KEEP_ALIVE))
 					{
 						/* update the keep alive from the server keep alive */
-						int server_keep_alive = MQTTProperties_getNumericValue(&connack->properties, MQTTPROPERTY_CODE_SERVER_KEEP_ALIVE);
+						int server_keep_alive = (int)MQTTProperties_getNumericValue(&connack->properties, MQTTPROPERTY_CODE_SERVER_KEEP_ALIVE);
 						if (server_keep_alive != -999999)
 						{
 							Log(LOG_PROTOCOL, -1, "Setting keep alive interval to server keep alive %d", server_keep_alive);
@@ -1907,7 +1907,7 @@ MQTTResponse MQTTClient_connectAll(MQTTClient handle, MQTTClient_connectOptions*
 	{
 		if (rc.properties && MQTTProperties_hasProperty(rc.properties, MQTTPROPERTY_CODE_RECEIVE_MAXIMUM))
 		{
-			int recv_max = MQTTProperties_getNumericValue(rc.properties, MQTTPROPERTY_CODE_RECEIVE_MAXIMUM);
+			int recv_max = (int)MQTTProperties_getNumericValue(rc.properties, MQTTPROPERTY_CODE_RECEIVE_MAXIMUM);
 			if (m->c->maxInflightMessages > recv_max)
 				m->c->maxInflightMessages = recv_max;
 		}

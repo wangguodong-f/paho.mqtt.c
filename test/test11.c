@@ -578,7 +578,7 @@ int test_server_topic_aliases_messageArrived(void* context, char* topicName, int
 		const int props_count = 0;
 
 		if (MQTTProperties_hasProperty(&message->properties, MQTTPROPERTY_CODE_TOPIC_ALIAS))
-			topicAlias = MQTTProperties_getNumericValue(&message->properties, MQTTPROPERTY_CODE_TOPIC_ALIAS);
+			topicAlias = (int)MQTTProperties_getNumericValue(&message->properties, MQTTPROPERTY_CODE_TOPIC_ALIAS);
 
 		if (received == 1)
 		{
@@ -765,7 +765,7 @@ int test_subscription_ids_messageArrived(void* context, char* topicName, int top
 
 		for (i = 0; i < subsidcount; ++i)
 		{
-			int subsid = MQTTProperties_getNumericValueAt(&message->properties, MQTTPROPERTY_CODE_SUBSCRIPTION_IDENTIFIER, i);
+			int subsid = (int)MQTTProperties_getNumericValueAt(&message->properties, MQTTPROPERTY_CODE_SUBSCRIPTION_IDENTIFIER, i);
 			assert("Subsid is i+1", subsid == i+1, "subsid is not correct %d\n", subsid);
 		}
 		logProperties(&message->properties);
@@ -991,7 +991,7 @@ void test_flow_control_onConnect(void* context, MQTTAsync_successData5* response
 	logProperties(&response->properties);
 
 	if (MQTTProperties_hasProperty(&response->properties, MQTTPROPERTY_CODE_RECEIVE_MAXIMUM))
-		test_flow_control_globals.receive_maximum = MQTTProperties_getNumericValue(&response->properties, MQTTPROPERTY_CODE_RECEIVE_MAXIMUM);
+		test_flow_control_globals.receive_maximum = (int)MQTTProperties_getNumericValue(&response->properties, MQTTPROPERTY_CODE_RECEIVE_MAXIMUM);
 
 	opts.onSuccess5 = test_flow_control_onSubscribe;
 	opts.context = c;
@@ -1721,7 +1721,7 @@ int test_subscribeOptions_messageArrived(void* context, char* topicName, int top
 		subsidcount = MQTTProperties_propertyCount(&message->properties, MQTTPROPERTY_CODE_SUBSCRIPTION_IDENTIFIER);
 		assert("Subsidcount is i", subsidcount == 1, "subsidcount is not correct %d\n", subsidcount);
 
-		subsid = MQTTProperties_getNumericValueAt(&message->properties, MQTTPROPERTY_CODE_SUBSCRIPTION_IDENTIFIER, 0);
+		subsid = (int)MQTTProperties_getNumericValueAt(&message->properties, MQTTPROPERTY_CODE_SUBSCRIPTION_IDENTIFIER, 0);
 		assert("Subsid is 2", subsid == 2, "subsid is not correct %d\n", subsid);
 
 		test_subscribeOptions_globals.test_finished = 1;
