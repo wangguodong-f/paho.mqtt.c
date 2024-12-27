@@ -851,7 +851,7 @@ int MQTTAsync_addCommand(MQTTAsync_queuedCommand* command, int command_size)
 				; /* don't persist QoS0 if that create option is set to 0 */
 			else
 			{
-				int rc = MQTTAsync_persistCommand(command);
+				rc = MQTTAsync_persistCommand(command);
 				if (command->command.type == PUBLISH && rc == 0)
 				{
 					char key[PERSISTENCE_MAX_KEY_LENGTH + 1];
