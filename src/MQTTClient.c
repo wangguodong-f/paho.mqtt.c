@@ -1439,8 +1439,8 @@ static MQTTResponse MQTTClient_connectURIVersion(MQTTClient handle, MQTTClient_c
 
 					while (ListNextElement(m->c->outboundMsgs, &outcurrent))
 					{
-						Messages* m = (Messages*)(outcurrent->content);
-						memset(&m->lastTouch, '\0', sizeof(m->lastTouch));
+						Messages* m2 = (Messages*)(outcurrent->content);
+						memset(&m2->lastTouch, '\0', sizeof(m2->lastTouch));
 					}
 					MQTTProtocol_retry(zero, 1, 1);
 					if (m->c->connected != 1)
@@ -2951,8 +2951,8 @@ int MQTTClient_getPendingDeliveryTokens(MQTTClient handle, MQTTClient_deliveryTo
 		}
 		while (ListNextElement(m->c->outboundMsgs, &current))
 		{
-			Messages* m = (Messages*)(current->content);
-			(*tokens)[count++] = m->msgid;
+			Messages* m2 = (Messages*)(current->content);
+			(*tokens)[count++] = m2->msgid;
 		}
 		(*tokens)[count] = -1;
 	}
