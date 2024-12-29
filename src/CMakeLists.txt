@@ -232,13 +232,15 @@ if(PAHO_WITH_SSL OR PAHO_WITH_LIBRESSL)
   if(PAHO_WITH_LIBRESSL)
     find_package(LibreSSL REQUIRED)
     set(SSL_LIBRARY_NAME LibreSSL)
-    message(STATUS "Using LibreSSL with headers at ${LIBRESSL_INCLUDE_DIR}, lib ${LIBRESSL_SSL_LIBRARY}")
+    set(SSL_INCLUDE_DIR ${LIBRESSL_INCLUDE_DIR})
+    set(SSL_ROOT_DIR ${LIBRESSL_ROOT_DIR})
   else()
     find_package(OpenSSL REQUIRED)
     set(SSL_LIBRARY_NAME OpenSSL)
-    message(STATUS "Using OpenSSL with headers at ${OPENSSL_INCLUDE_DIR}, lib ${OPENSSL_SSL_LIBRARY}")
+    set(SSL_INCLUDE_DIR ${OPENSSL_INCLUDE_DIR})
+    set(SSL_ROOT_DIR ${OPENSSL_ROOT_DIR})
   endif()
-
+  message(STATUS "Using ${SSL_LIBRARY_NAME} with headers at ${SSL_INCLUDE_DIR}")
 
   if(PAHO_BUILD_SHARED)
     ## common compilation for libpaho-mqtt3cs and libpaho-mqtt3as
