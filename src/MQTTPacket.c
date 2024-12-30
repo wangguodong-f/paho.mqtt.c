@@ -945,7 +945,11 @@ int MQTTPacket_send_publish(Publish* pack, int dup, int qos, int retained, netwo
 		memcpy(pack->mask, packetbufs.mask, sizeof(pack->mask));
 	}
 	{
+#if defined(_WIN32) || defined(_WIN64)
+		#define buflen 30
+#else
 		const int buflen = 30;
+#endif
 		char buf[buflen];
 		int len = 0;
 
