@@ -408,7 +408,8 @@ typedef void MQTTClient_connectionLost(void* context, char* cause);
 /**
  * This function sets the callback functions for a specific client.
  * If your client application doesn't use a particular callback, set the
- * relevant parameter to NULL. Calling MQTTClient_setCallbacks() puts the
+ * relevant parameter to NULL (except for message arrived, which must be given).
+ * Calling MQTTClient_setCallbacks() puts the
  * client into multi-threaded mode. Any necessary message acknowledgements and
  * status communications are handled in the background without any intervention
  * from the client application. See @ref async for more information.

@@ -780,11 +780,10 @@ typedef struct MQTTAsync_responseOptions MQTTAsync_callOptions;
 /**
  * This function sets the global callback functions for a specific client.
  * If your client application doesn't use a particular callback, set the
- * relevant parameter to NULL. Any necessary message acknowledgements and
- * status communications are handled in the background without any intervention
- * from the client application.  If you do not set a messageArrived callback
- * function, you will not be notified of the receipt of any messages as a
- * result of a subscription.
+ * relevant parameter to NULL (except for message arrived, which must be given).
+ * Any necessary message acknowledgements and status communications are handled
+ * in the background without any intervention
+ * from the client application.
  *
  * <b>Note:</b> The MQTT client must be disconnected when this function is
  * called.
