@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2023 IBM Corp.
+ * Copyright (c) 2009, 2024 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -349,13 +349,13 @@ void *myrealloc(char* file, int line, void* p, size_t size)
 		*(eyecatcherType*)(s->ptr) = eyecatcher; /* start eyecatcher */
 		*(eyecatcherType*)(((char*)(s->ptr)) + (sizeof(eyecatcherType) + size)) = eyecatcher; /* end eyecatcher */
 		s->size = size;
+		space -= strlen(s->file);
 		newPtr = realloc(s->file, filenamelen);
 		if (newPtr == NULL)
 		{
 			Log(LOG_ERROR, 13, errmsg);
 			goto exit;
 		}
-		space -= strlen(s->file);
 		s->file = newPtr;
 		space += filenamelen;
 		strcpy(s->file, file);
