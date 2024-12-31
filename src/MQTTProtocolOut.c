@@ -136,10 +136,18 @@ void MQTTProtocol_specialChars(char* p0, char* p1, b64_size_t *basic_auth_in_len
 }
 
 
-/*
+/**
+ * Set the HTTP proxy for connecting
  * Examples of proxy settings:
  *   http://your.proxy.server:8080/
  *   http://user:pass@my.proxy.server:8080/
+ *
+ * @param aClient pointer to Clients object
+ * @param source the proxy setting from environment or API
+ * @param [out] dest pointer to output proxy info
+ * @param [out] auth_dest pointer to output authentication material
+ * @param prefix expected URI prefix: http:// or https://
+ * @return 0 on success, non-zero otherwise
  */
 int MQTTProtocol_setHTTPProxy(Clients* aClient, char* source, char** dest, char** auth_dest, char* prefix)
 {
@@ -253,11 +261,31 @@ int MQTTProtocol_connect(const char* ip_address, Clients* aClient, int websocket
 	if (aClient->httpsProxy)
 		p0 = aClient->httpsProxy;
 	else
-		p0 = getenv("https_proxy");
+	{
+		/* Don't use the environment HTTP proxy settings by default - for backwards compatibility */
+		char* use_proxy = getenv("PAHO_C_CLIENT_USE_HTTP_PROXY");
+		if (use_proxy)
+		{
+			if (strncmp(use_proxy, "TRUE", strlen("TRUE")) == 0)
+				p0 = getenv("https_proxy");
+		}
+	}
 
 	if (p0)
 	{
-		if ((rc = MQTTProtocol_setHTTPProxy(aClient, p0, &aClient->net.https_proxy, &aClient->net.https_proxy_auth, "https://")) != 0)
+		char* prefix = NULL;
+
+		if (memcmp(p0, "http://", 7) == 0)
+			prefix = "http://";
+		else if (memcmp(p0, "https://", 8) == 0)
+			prefix = "https://";
+		else
+		{
+			rc = -1;
+			goto exit;
+		}
+
+		if ((rc = MQTTProtocol_setHTTPProxy(aClient, p0, &aClient->net.https_proxy, &aClient->net.https_proxy_auth, prefix)) != 0)
 			goto exit;
 		Log(TRACE_PROTOCOL, -1, "Setting https proxy to %s", aClient->net.https_proxy);
 		if (aClient->net.https_proxy_auth)
