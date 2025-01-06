@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2017 IBM Corp.
+ * Copyright (c) 2012, 2024 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -380,7 +380,7 @@ int main(int argc, char** argv)
 {
 	int* numtests = &tests;
 	int rc = 0;
-	int (*tests[])() = { NULL, test_373};
+	int (*tests[])(struct Options) = { NULL, test_373};
 	unsigned int QoS;
 
 	sprintf(unique, "%u", rand());

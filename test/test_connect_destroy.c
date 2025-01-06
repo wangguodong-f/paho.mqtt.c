@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2023 IBM Corp. and others
+ * Copyright (c) 2009, 2024 IBM Corp. and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -382,7 +382,7 @@ exit:
 int main(int argc, char** argv)
 {
 	int rc = 0;
-	int (*tests[])() = {NULL, test1};
+	int (*tests[])(struct Options) = {NULL, test1};
 	int i;
 
 	xml = fopen("TEST-test2.xml", "w");

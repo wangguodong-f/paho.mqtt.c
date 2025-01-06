@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2023 IBM Corp.
+ * Copyright (c) 2009, 2024 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -491,7 +491,7 @@ int test_mutex(struct Options options)
 int main(int argc, char** argv)
 {
 	int rc = -1;
- 	int (*tests[])() = {NULL,
+ 	int (*tests[])(struct Options) = {NULL,
  		test_mutex,
  		test_sem,
 #if !defined(_WIN32) && !defined(_WIN64)
