@@ -1,5 +1,5 @@
 #*******************************************************************************
-#  Copyright (c) 2015, 2024 logi.cals GmbH, Frank Pagliughi <fpagliughi@mindspring.com> and others
+#  Copyright (c) 2015, 2025 logi.cals GmbH, Frank Pagliughi <fpagliughi@mindspring.com> and others
 #
 #  All rights reserved. This program and the accompanying materials
 #  are made available under the terms of the Eclipse Public License v2.0
@@ -18,7 +18,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 project("Eclipse Paho C" 
-  VERSION 1.3.13
+  VERSION 1.3.14
   LANGUAGES C
 )
 
