@@ -2322,8 +2322,7 @@ thread_return_type WINAPI MQTTAsync_receiveThread(void* n)
 				}
 				else
 				{
-					free(pack);
-					pack = NULL;
+					Log(TRACE_MIN, -1, "An unexpected packet type %u has been received", pack->header.bits.type);
 				}
 			}
 		}
