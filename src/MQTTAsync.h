@@ -29,9 +29,11 @@
  * @cond MQTTAsync_main
  * @mainpage Asynchronous MQTT client library for C (MQTTAsync)
  *
- * &copy; Copyright 2009, 2025 IBM Corp., Ian Craggs and others
+ * &copy; Copyright 2009, 2025 IBM Corp., Ian Craggs and others.
  *
  * @brief An Asynchronous MQTT client library for C.
+ *
+ * Version 1.3.14
  *
  * An MQTT client application connects to MQTT-capable servers.
  * A typical client is responsible for collecting information from a telemetry
