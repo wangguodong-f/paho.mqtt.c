@@ -457,7 +457,6 @@ int MQTTAsync_createWithOptions(MQTTAsync* handle, const char* serverURI, const 
 		if (options->struct_version > 0)
 			m->c->MQTTVersion = options->MQTTVersion;
 	}
-
 #if !defined(NO_PERSISTENCE)
 	rc = MQTTPersistence_create(&(m->c->persistence), persistence_type, persistence_context);
 	if (rc == 0)
@@ -677,6 +676,7 @@ int MQTTAsync_connect(MQTTAsync handle, const MQTTAsync_connectOptions* options)
 	if (locked)
 		MQTTAsync_unlock_mutex(mqttasync_mutex);
 
+	m->c->socket_fwmark = options->socket_fwmark;
 	m->c->keepAliveInterval = m->c->savedKeepAliveInterval = options->keepAliveInterval;
 	setRetryLoopInterval(options->keepAliveInterval);
 	m->c->cleansession = options->cleansession;

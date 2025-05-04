@@ -1128,7 +1128,7 @@ exit:
  *  @return completion code 0=good, SOCKET_ERROR=fail
  */
 #if defined(__GNUC__) && defined(__linux__)
-int Socket_new(const char* addr, size_t addr_len, int port, SOCKET* sock, long timeout)
+int Socket_new(const char* addr, size_t addr_len, int port, SOCKET* sock, int fwmark, long timeout)
 #else
 int Socket_new(const char* addr, size_t addr_len, int port, SOCKET* sock)
 #endif
@@ -1244,6 +1244,12 @@ int Socket_new(const char* addr, size_t addr_len, int port, SOCKET* sock)
 			rc = Socket_error("socket", *sock);
 		else
 		{
+#if defined(__GNUC__) && defined(__linux__)
+			int sock_fwmark = fwmark;
+			if (setsockopt(*sock, SOL_SOCKET, SO_MARK, (void*)&sock_fwmark, sizeof(sock_fwmark)) != 0)
+				Log(LOG_ERROR, -1, "Could not set SO_MARK for socket %d", *sock);
+#endif
+
 #if defined(NOSIGPIPE)
 			int opt = 1;
 

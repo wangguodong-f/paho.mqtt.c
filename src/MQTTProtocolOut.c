@@ -121,7 +121,7 @@ size_t MQTTProtocol_addressPort(const char* uri, int* port, const char **topic, 
 #if defined(OPENSSL)
 #if defined(__GNUC__) && defined(__linux__)
 int MQTTProtocol_connect(const char* address, Clients* aClient, int unixsock, int ssl, int websocket, int MQTTVersion,
-		MQTTProperties* connectProperties, MQTTProperties* willProperties, long timeout)
+		MQTTProperties* connectProperties, MQTTProperties* willProperties, int fwmark, long timeout)
 #else
 int MQTTProtocol_connect(const char* address, Clients* aClient, int unixsock, int ssl, int websocket, int MQTTVersion,
 		MQTTProperties* connectProperties, MQTTProperties* willProperties)
@@ -129,7 +129,7 @@ int MQTTProtocol_connect(const char* address, Clients* aClient, int unixsock, in
 #else
 #if defined(__GNUC__) && defined(__linux__)
 int MQTTProtocol_connect(const char* address, Clients* aClient, int unixsock, int websocket, int MQTTVersion,
-		MQTTProperties* connectProperties, MQTTProperties* willProperties, long timeout)
+		MQTTProperties* connectProperties, MQTTProperties* willProperties, int fwmark, long timeout)
 #else
 int MQTTProtocol_connect(const char* address, Clients* aClient, int unixsock, int websocket, int MQTTVersion,
 		MQTTProperties* connectProperties, MQTTProperties* willProperties)
@@ -242,7 +242,7 @@ int MQTTProtocol_connect(const char* address, Clients* aClient, int unixsock, in
 		if (timeout < 0)
 			rc = -1;
 		else
-			rc = Socket_new(aClient->net.http_proxy, addr_len, port, &(aClient->net.socket), timeout);
+			rc = Socket_new(aClient->net.http_proxy, addr_len, port, &(aClient->net.socket), fwmark, timeout);
 #else
 		rc = Socket_new(aClient->net.http_proxy, addr_len, port, &(aClient->net.socket));
 #endif
@@ -254,7 +254,7 @@ int MQTTProtocol_connect(const char* address, Clients* aClient, int unixsock, in
 		if (timeout < 0)
 			rc = -1;
 		else
-			rc = Socket_new(aClient->net.https_proxy, addr_len, port, &(aClient->net.socket), timeout);
+			rc = Socket_new(aClient->net.https_proxy, addr_len, port, &(aClient->net.socket), fwmark, timeout);
 #else
 		rc = Socket_new(aClient->net.https_proxy, addr_len, port, &(aClient->net.socket));
 #endif
@@ -278,7 +278,7 @@ int MQTTProtocol_connect(const char* address, Clients* aClient, int unixsock, in
 		if (timeout < 0)
 			rc = -1;
 		else
-			rc = Socket_new(address, addr_len, port, &(aClient->net.socket), timeout);
+			rc = Socket_new(address, addr_len, port, &(aClient->net.socket), fwmark, timeout);
 #else
 		rc = Socket_new(address, addr_len, port, &(aClient->net.socket));
 #endif

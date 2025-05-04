@@ -1377,7 +1377,7 @@ static int MQTTAsync_processCommand(void)
 #if defined(OPENSSL)
 #if defined(__GNUC__) && defined(__linux__)
 			rc = MQTTProtocol_connect(serverURI, command->client->c, command->client->unixsock, command->client->ssl, command->client->websocket,
-					command->command.details.conn.MQTTVersion, command->client->connectProps, command->client->willProps, 100);
+					command->command.details.conn.MQTTVersion, command->client->connectProps, command->client->willProps, command->client->c->socket_fwmark, 100);
 #else
 			rc = MQTTProtocol_connect(serverURI, command->client->c, command->client->unixsock, command->client->ssl, command->client->websocket,
 					command->command.details.conn.MQTTVersion, command->client->connectProps, command->client->willProps);
@@ -1385,7 +1385,7 @@ static int MQTTAsync_processCommand(void)
 #else
 #if defined(__GNUC__) && defined(__linux__)
 			rc = MQTTProtocol_connect(serverURI, command->client->c, command->client->unixsock, command->client->websocket,
-					command->command.details.conn.MQTTVersion, command->client->connectProps, command->client->willProps, 100);
+					command->command.details.conn.MQTTVersion, command->client->connectProps, command->client->willProps, command->client->c->socket_fwmark, 100);
 #else
 			rc = MQTTProtocol_connect(serverURI, command->client->c, command->client->unixsock, command->client->websocket,
 					command->command.details.conn.MQTTVersion, command->client->connectProps, command->client->willProps);

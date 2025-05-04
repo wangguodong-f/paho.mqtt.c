@@ -132,6 +132,7 @@ typedef struct Clients
 	START_TIME_TYPE ping_due_time;  /**< the time at which the ping should have been sent (ping_due) */
 	networkHandles net;             /**< network info for this client */
 	int msgID;                      /**< the MQTT message id */
+	int socket_fwmark;              /**< the socket fwmark */
 	int keepAliveInterval;          /**< the MQTT keep alive interval */
 	int savedKeepAliveInterval;     /**< saved keep alive interval, in case reset by server keep alive */
 	int retryInterval;              /**< the MQTT retry interval for QoS > 0 */
